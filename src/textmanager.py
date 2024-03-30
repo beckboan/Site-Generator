@@ -38,16 +38,18 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         if isinstance(node, TextNode):
             text = node.text
             parts = text.split(delimiter)
-            if len(parts) < 3:
+            #See how many parts we have
+            #Len of parts must be odd to have a delimiter pair
+            if len(parts) % 2 == 0:
                 raise ValueError("Delimiter without pair")
             else:
-                if parts[0] != "":
-                    new_nodes.append(TextNode(parts[0], TextTypes.text))
+                for i, part in enumerate(parts):
+                    if i % 2 == 0:
+                        if part != "":
+                            new_nodes.append(TextNode(part, TextTypes.text))
+                    else:
+                        new_nodes.append(TextNode(part, text_type))
 
-                new_nodes.append(TextNode(parts[1], text_type))
-
-                if parts[2] != "":
-                    new_nodes.append(TextNode(parts[2], TextTypes.text))
 
         else:
             new_nodes.append(node)
@@ -127,3 +129,23 @@ def split_nodes_link(old_nodes):
             if (node.text != ""):
                 new_nodes.append(node)
     return new_nodes
+
+    text = "text"
+    bold = "bold"
+    italic = "italic"
+    code = "code"
+    link = "link"
+    image = "image"
+
+def text_to_textnodes(text):
+    text_node = TextNode(text, TextTypes.text)
+    new_nodes = split_nodes_delimiter([text_node], "**", TextTypes.bold)
+    new_nodes = split_nodes_delimiter(new_nodes, "*", TextTypes.italic)
+    new_nodes = split_nodes_delimiter(new_nodes, "`", TextTypes.code)
+    new_nodes = split_nodes_image([text_node])
+    new_nodes = split_nodes_link(new_nodes)
+
+
+
+
+

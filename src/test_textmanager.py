@@ -1,6 +1,6 @@
 import unittest
 
-from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
+from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
 from htmlnode import HTMLNode
 from textnode import TextNode
 
@@ -16,6 +16,31 @@ class TestTextManager(unittest.TestCase):
                 TextNode("This is text with a ", TextTypes.text),
                 TextNode("code block", TextTypes.code),
                 TextNode(" word", TextTypes.text),
+            ],
+        )
+
+    def test_eq2(self):
+        node = TextNode(
+            "`This` is text with a code block word", TextTypes.text)
+        new_nodes = split_nodes_delimiter([node], "`", TextTypes.code)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This", TextTypes.code),
+                TextNode(" is text with a code block word", TextTypes.text),
+            ],
+        )
+    def test_double(self):
+        node = TextNode(
+            "`This` is text with a `code` block word", TextTypes.text)
+        new_nodes = split_nodes_delimiter([node], "`", TextTypes.code)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This", TextTypes.code),
+                TextNode(" is text with a ", TextTypes.text),
+                TextNode("code", TextTypes.code),
+                TextNode(" block word", TextTypes.text),
             ],
         )
 
@@ -90,6 +115,25 @@ class TestTextManager(unittest.TestCase):
                 TextNode("text2", TextTypes.link, url="url2"),
             ],
         )
+
+    # def test_text_to_textnodes(self):
+    #     text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+    #     nodes = text_to_textnodes(text)
+    #     self.assertEqual(
+    #         nodes,
+    #         [
+    #             TextNode("This is ", TextTypes.text),
+    #             TextNode("text", TextTypes.bold),
+    #             TextNode(" with an ", TextTypes.text),
+    #             TextNode("italic", TextTypes.italic),
+    #             TextNode(" word and a ", TextTypes.text),
+    #             TextNode("code block", TextTypes.code),
+    #             TextNode(" word and a ", TextTypes.text),
+    #             TextNode("image", TextTypes.image, "https://i.imgur.com/zjjcJKZ.png"),
+    #             TextNode(" word and a ", TextTypes.text),
+    #             TextNode("link", TextTypes.link, "https://boot.dev"),
+    #         ]
+    #     )
 
 
 if __name__ == "__main__":
