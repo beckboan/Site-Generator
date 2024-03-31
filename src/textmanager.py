@@ -35,7 +35,7 @@ def text_node_to_html_node(text_node):
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
-        if isinstance(node, TextNode):
+        if isinstance(node, TextNode) and node.text_type == TextTypes.text:
             text = node.text
             parts = text.split(delimiter)
             #See how many parts we have
@@ -86,7 +86,7 @@ def extract_markdown_links(text):
 def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
-        if isinstance(node, TextNode):
+        if isinstance(node, TextNode) and node.text_type == TextTypes.text:
             text = node.text
             images = extract_markdown_images(text)
             if images == []:
@@ -110,7 +110,7 @@ def split_nodes_image(old_nodes):
 def split_nodes_link(old_nodes):
     new_nodes = []
     for node in old_nodes:
-        if isinstance(node, TextNode):
+        if isinstance(node, TextNode) and node.text_type == TextTypes.text:
             text = node.text
             links = extract_markdown_links(text)
             if links == []:
@@ -130,22 +130,16 @@ def split_nodes_link(old_nodes):
                 new_nodes.append(node)
     return new_nodes
 
-    text = "text"
-    bold = "bold"
-    italic = "italic"
-    code = "code"
-    link = "link"
-    image = "image"
-
 def text_to_textnodes(text):
-    text_node = TextNode(text, TextTypes.text)
-    new_nodes = split_nodes_delimiter([text_node], "**", TextTypes.bold)
-    new_nodes = split_nodes_delimiter(new_nodes, "*", TextTypes.italic)
-    new_nodes = split_nodes_delimiter(new_nodes, "`", TextTypes.code)
-    new_nodes = split_nodes_image([text_node])
-    new_nodes = split_nodes_link(new_nodes)
+    text_nodes = [TextNode(text, TextTypes.text)]
+    try:
+        text_nodes = split_nodes_delimiter(text_nodes, "**", TextTypes.bold)
+        text_nodes = split_nodes_delimiter(text_nodes, "*", TextTypes.italic)
+        text_nodes = split_nodes_delimiter(text_nodes, "`", TextTypes.code)
+        text_nodes = split_nodes_image(text_nodes)
+        text_nodes = split_nodes_link(text_nodes)
+    except ValueError as e:
+        print("Error: ", e)
+        pass
 
-
-
-
-
+    return text_nodes

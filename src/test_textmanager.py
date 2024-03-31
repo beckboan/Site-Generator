@@ -43,6 +43,18 @@ class TestTextManager(unittest.TestCase):
                 TextNode(" block word", TextTypes.text),
             ],
         )
+    def test_bold(self):
+        node = TextNode(
+		    "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)", TextTypes.text)
+        new_nodes = split_nodes_delimiter([node], "**", TextTypes.bold)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is ", TextTypes.text),
+                TextNode("text", TextTypes.bold),
+                TextNode(" with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)", TextTypes.text),
+            ],
+        )
 
     def test_no_pair(self):
         node = TextNode("This is text with a `code block word", TextTypes.text)
@@ -116,24 +128,26 @@ class TestTextManager(unittest.TestCase):
             ],
         )
 
-    # def test_text_to_textnodes(self):
-    #     text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
-    #     nodes = text_to_textnodes(text)
-    #     self.assertEqual(
-    #         nodes,
-    #         [
-    #             TextNode("This is ", TextTypes.text),
-    #             TextNode("text", TextTypes.bold),
-    #             TextNode(" with an ", TextTypes.text),
-    #             TextNode("italic", TextTypes.italic),
-    #             TextNode(" word and a ", TextTypes.text),
-    #             TextNode("code block", TextTypes.code),
-    #             TextNode(" word and a ", TextTypes.text),
-    #             TextNode("image", TextTypes.image, "https://i.imgur.com/zjjcJKZ.png"),
-    #             TextNode(" word and a ", TextTypes.text),
-    #             TextNode("link", TextTypes.link, "https://boot.dev"),
-    #         ]
-    #     )
+    def test_text_to_textnodes(self):
+        self.maxDiff = None
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        
+        nodes = text_to_textnodes(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode("This is ", TextTypes.text),
+                TextNode("text", TextTypes.bold),
+                TextNode(" with an ", TextTypes.text),
+                TextNode("italic", TextTypes.italic),
+                TextNode(" word and a ", TextTypes.text),
+                TextNode("code block", TextTypes.code),
+                TextNode(" and an ", TextTypes.text),
+                TextNode("image", TextTypes.image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", TextTypes.text),
+                TextNode("link", TextTypes.link, "https://boot.dev"),
+            ]
+        )
 
 
 if __name__ == "__main__":
