@@ -143,3 +143,60 @@ def text_to_textnodes(text):
         pass
 
     return text_nodes
+
+def markdown_to_blocks(markdown):
+    blocks= []
+    split = markdown.split("\n\n")
+    for line in split:
+        #Remove \n at beginning and end of line
+        line = line.strip().strip("\n").strip()
+        if line != "":
+            blocks.append(line)
+
+    return blocks
+
+class BlockTypes:
+    paragraph = "paragraph"
+    heading = "heading"
+    code = "code"
+    quote = "quote"
+    unordered_list = "unordered_list"
+    ordered_list = "ordered_list"
+
+def block_to_block_type(block):
+    #First, check if it is a heading
+    #Check all heading types from 1 to 6
+    if block.startswith("#"):
+        for i in range(1, 7):
+            if block.startswith("#" * i + " "):
+                return BlockTypes.heading
+
+    #Then, check if it is a code block
+    if block.startswith("```") and block.endswith("```"):
+        return BlockTypes.code
+
+    block_lines = block.split("\n")
+    block_lines = [line.strip() for line in block_lines]
+
+    line_count = len(block_lines)
+    for line in block_lines:
+        if line.startswith(">"):
+            line_count -= 1
+    if line_count == 0:
+        return BlockTypes.quote
+
+    line_count = len(block_lines)
+    for line in block_lines:
+        if line.startswith("*") or line.startswith("-"):
+            line_count -= 1
+    if line_count == 0:
+        return BlockTypes.unordered_list
+    
+    line_count = len(block_lines)
+    for index, line in enumerate(block_lines):
+        if line.startswith(f"{index + 1}."):
+            line_count -= 1
+    if line_count == 0:
+        return BlockTypes.ordered_list
+
+    return BlockTypes.paragraph
