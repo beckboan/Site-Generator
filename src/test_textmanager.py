@@ -1,6 +1,6 @@
 import unittest
 
-from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
 from htmlnode import HTMLNode
 from textnode import TextNode
 
@@ -146,6 +146,18 @@ class TestTextManager(unittest.TestCase):
                 TextNode("image", TextTypes.image, "https://i.imgur.com/zjjcJKZ.png"),
                 TextNode(" and a ", TextTypes.text),
                 TextNode("link", TextTypes.link, "https://boot.dev"),
+            ]
+        )
+
+    def test_markdown_to_blocks(self):
+        markdown = "This is **bolded** paragraph\n\nThis is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line\n\n* This is a list\n* with items\n"
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+                "* This is a list\n* with items",
             ]
         )
 
