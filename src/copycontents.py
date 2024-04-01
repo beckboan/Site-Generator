@@ -9,7 +9,6 @@ def copy(src, dst):
 	if not os.path.isdir(src):
 		raise ValueError("Source is not a directory")
 	os.mkdir(dst)
-	#Recursively copy all files and directories
 	for item in os.listdir(src):
 		s = os.path.join(src, item)
 		d = os.path.join(dst, item)
