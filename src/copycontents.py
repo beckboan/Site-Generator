@@ -1,7 +1,7 @@
 import os
 import shutil
 
-def copy(src, dst):
+def copycontents(src, dst):
 	if os.path.exists(dst):
 		raise ValueError("Destination already exists")
 	if not os.path.exists(src):
