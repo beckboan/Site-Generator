@@ -199,16 +199,82 @@ def block_to_block_type(block):
     return BlockTypes.paragraph
 
 def paragraph_block_to_html(block):
-    content = block
-    return
+    text_nodes = text_to_textnodes(block)
+    html_nodes = [text_node_to_html_node(node) for node in text_nodes]
+    return LeafNode("p", html_nodes)
 
 def heading_block_to_html(block):
-    return
+    text_nodes = text_to_textnodes(block)
+    html_nodes = [text_node_to_html_node(node) for node in text_nodes]
+    heading_count = len(block) - len(block.lstrip("#"))
+    return LeafNode(f"h{heading_count}", html_nodes)
+
 def code_block_to_html(block):
-    return
+    text_nodes = text_to_textnodes(block)
+    html_nodes = [text_node_to_html_node(node) for node in text_nodes]
+    return LeafNode("code", HTMLNode("pre", html_nodes))
+
 def quote_block_to_html(block):
-    return
+    text_nodes = text_to_textnodes(block)
+    html_nodes = [text_node_to_html_node(node) for node in text_nodes]
+    return LeafNode("blockquote", html_nodes)
+
 def ul_block_to_html(block):
-    return
+    items = block.split("\n")
+    items = [item.strip().strip("*").strip("-") for item in items]
+    text_nodes = [text_to_textnodes(item) for item in items]
+    html_nodes = []
+    for nodes in text_nodes:
+        html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
+    return LeafNode("ul", html_nodes)
+
+
+
 def ol_block_to_html(block):
-    return
+    items = block.split("\n")
+    for i, item in enumerate(items):
+        items[i] = item.strip().strip(f"{i + 1}.").strip()
+    text_nodes = [text_to_textnodes(item) for item in items]
+    html_nodes = []
+    for nodes in text_nodes:
+        html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
+    return LeafNode("ol", html_nodes)
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    html_nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        if block_type == BlockTypes.paragraph:
+            html_nodes.append(paragraph_block_to_html(block))
+        elif block_type == BlockTypes.heading:
+            html_nodes.append(heading_block_to_html(block))
+        elif block_type == BlockTypes.code:
+            html_nodes.append(code_block_to_html(block))
+        elif block_type == BlockTypes.quote:
+            html_nodes.append(quote_block_to_html(block))
+        elif block_type == BlockTypes.unordered_list:
+            html_nodes.append(ul_block_to_html(block))
+        elif block_type == BlockTypes.ordered_list:
+            html_nodes.append(ol_block_to_html(block))
+
+    return ParentNode("div", html_nodes)
+
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    if len(blocks) == 0:
+        raise ValueError("No header found")
+    count = 0
+    title = ""
+    for block in blocks:
+        if block.startswith("# "):
+            count += 1
+            title = block.strip("# ").strip()
+    if count == 0:
+        raise ValueError("No header found")
+    if count > 1:
+        raise ValueError("Multiple headers found")
+    return title
+
+
