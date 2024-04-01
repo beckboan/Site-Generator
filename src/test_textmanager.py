@@ -1,6 +1,6 @@
 import unittest
 
-from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
+from textmanager import split_nodes_delimiter, TextTypes, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks, block_to_block_type
 from htmlnode import HTMLNode
 from textnode import TextNode
 
@@ -160,6 +160,35 @@ class TestTextManager(unittest.TestCase):
                 "* This is a list\n* with items",
             ]
         )
+
+    def test_block_paragraph(self):
+        block = "This is a paragraph"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+    def test_block_heading(self):
+        block = "# This is a heading"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_heading2(self):
+        block = "###### This is a heading"
+        self.assertEqual(block_to_block_type(block), "heading")
+    
+    def test_block_code(self):
+        block = "```python\nprint('Hello')\n```"
+        self.assertEqual(block_to_block_type(block), "code")
+
+    def test_block_quote(self):
+        block = "> This is a quote"
+        self.assertEqual(block_to_block_type(block), "quote")
+    
+    def test_block_unordered_list(self):
+        block = "* This is a list\n* with items"
+        self.assertEqual(block_to_block_type(block), "unordered_list")
+
+    def test_block_unordered_list2(self):
+        block = "1. This is a list\n2. with items"
+        self.assertEqual(block_to_block_type(block), "ordered_list")
+    
 
 
 if __name__ == "__main__":

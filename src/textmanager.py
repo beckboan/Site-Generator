@@ -164,14 +164,11 @@ class BlockTypes:
     ordered_list = "ordered_list"
 
 def block_to_block_type(block):
-    #First, check if it is a heading
-    #Check all heading types from 1 to 6
     if block.startswith("#"):
         for i in range(1, 7):
             if block.startswith("#" * i + " "):
                 return BlockTypes.heading
 
-    #Then, check if it is a code block
     if block.startswith("```") and block.endswith("```"):
         return BlockTypes.code
 
@@ -200,3 +197,18 @@ def block_to_block_type(block):
         return BlockTypes.ordered_list
 
     return BlockTypes.paragraph
+
+def paragraph_block_to_html(block):
+    content = block
+    return
+
+def heading_block_to_html(block):
+    return
+def code_block_to_html(block):
+    return
+def quote_block_to_html(block):
+    return
+def ul_block_to_html(block):
+    return
+def ol_block_to_html(block):
+    return
