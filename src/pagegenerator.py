@@ -10,7 +10,6 @@ def generate_page(from_path, template_path, dest_path):
 		template = f.read()
 
 	page_node = markdown_to_html_node(text)
-	print(page_node)
 	contents = page_node.to_html()
 	# print(contents)
 	
