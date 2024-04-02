@@ -14,6 +14,8 @@ class TextTypes:
 
 
 def text_node_to_html_node(text_node):
+    if text_node.text is None:
+        raise ValueError("Text Node has no text")
     match text_node.text_type:
         case TextTypes.text:
             return LeafNode(None, text_node.text)
@@ -26,7 +28,7 @@ def text_node_to_html_node(text_node):
         case TextTypes.link:
             return LeafNode("a", text_node.text, {"href": text_node.url})
         case TextTypes.image:
-            return LeafNode("img", None, {"src": text_node.url,
+            return LeafNode("img", text_node.text, {"src": text_node.url,
                                           "alt": text_node.text})
         case _:
             raise ValueError("Invalid Text Type")
@@ -128,6 +130,7 @@ def split_nodes_link(old_nodes):
         else:
             if (node.text != ""):
                 new_nodes.append(node)
+        
     return new_nodes
 
 def text_to_textnodes(text):
@@ -201,23 +204,23 @@ def block_to_block_type(block):
 def paragraph_block_to_html(block):
     text_nodes = text_to_textnodes(block)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
-    return LeafNode("p", html_nodes)
+    return ParentNode("p", html_nodes)
 
 def heading_block_to_html(block):
     text_nodes = text_to_textnodes(block)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
     heading_count = len(block) - len(block.lstrip("#"))
-    return LeafNode(f"h{heading_count}", html_nodes)
+    return ParentNode(f"h{heading_count}", html_nodes)
 
 def code_block_to_html(block):
     text_nodes = text_to_textnodes(block)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
-    return LeafNode("code", HTMLNode("pre", html_nodes))
+    return ParentNode("code", ParentNode("pre", html_nodes))
 
 def quote_block_to_html(block):
     text_nodes = text_to_textnodes(block)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
-    return LeafNode("blockquote", html_nodes)
+    return ParentNode("blockquote", html_nodes)
 
 def ul_block_to_html(block):
     items = block.split("\n")
@@ -226,7 +229,7 @@ def ul_block_to_html(block):
     html_nodes = []
     for nodes in text_nodes:
         html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
-    return LeafNode("ul", html_nodes)
+    return ParentNode("ul", html_nodes)
 
 
 
@@ -238,7 +241,7 @@ def ol_block_to_html(block):
     html_nodes = []
     for nodes in text_nodes:
         html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
-    return LeafNode("ol", html_nodes)
+    return ParentNode("ol", html_nodes)
 
 
 def markdown_to_html_node(markdown):
