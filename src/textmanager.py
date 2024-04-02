@@ -24,7 +24,7 @@ def text_node_to_html_node(text_node):
         case TextTypes.italic:
             return LeafNode("i", text_node.text)
         case TextTypes.code:
-            return LeafNode("code", text_node.text)
+            return LeafNode("pre", text_node.text)
         case TextTypes.link:
             return LeafNode("a", text_node.text, {"href": text_node.url})
         case TextTypes.image:
@@ -207,7 +207,9 @@ def paragraph_block_to_html(block):
     return ParentNode("p", html_nodes)
 
 def heading_block_to_html(block):
-    text_nodes = text_to_textnodes(block)
+    block_strp = block.lstrip("#").strip()
+    text_nodes = text_to_textnodes(block_strp)
+    
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
     heading_count = len(block) - len(block.lstrip("#"))
     return ParentNode(f"h{heading_count}", html_nodes)
@@ -215,7 +217,7 @@ def heading_block_to_html(block):
 def code_block_to_html(block):
     text_nodes = text_to_textnodes(block)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
-    return ParentNode("code", ParentNode("pre", html_nodes))
+    return ParentNode("code",  html_nodes)
 
 def quote_block_to_html(block):
     text_nodes = text_to_textnodes(block)
@@ -228,24 +230,38 @@ def ul_block_to_html(block):
     text_nodes = [text_to_textnodes(item) for item in items]
     html_nodes = []
     for nodes in text_nodes:
-        html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
-    return ParentNode("ul", html_nodes)
+        if type(nodes) is list:
+            children = [text_node_to_html_node(node) for node in nodes]
+            html_nodes.append(ParentNode("li", children))
+        else:
+            html_nodes.append(text_node_to_html_node(nodes))
+    # for html_node in html_nodes:
+    #     print(html_node.to_html())
+    return ParentNode("ol", html_nodes)
 
 
 
 def ol_block_to_html(block):
     items = block.split("\n")
+    text_nodes = []
     for i, item in enumerate(items):
         items[i] = item.strip().strip(f"{i + 1}.").strip()
-    text_nodes = [text_to_textnodes(item) for item in items]
+        text_nodes.append(text_to_textnodes(items[i]))
     html_nodes = []
     for nodes in text_nodes:
-        html_nodes.append(LeafNode("li", [text_node_to_html_node(node) for node in nodes]))
-    return ParentNode("ol", html_nodes)
+        if type(nodes) is list:
+            children = [text_node_to_html_node(node) for node in nodes]
+            html_nodes.append(ParentNode("li", children))
+        else:
+            html_nodes.append(text_node_to_html_node(nodes))
+    # for html_node in html_nodes:
+    #     print(html_node.to_html())
+    return ParentNode("ul", html_nodes)
 
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
